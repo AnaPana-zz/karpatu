@@ -1,0 +1,14 @@
+{% set navigation_bar = [
+    ('/', 'index', 'Главная'),
+    ('/places/', 'places', 'Что посмотреть'),
+    ('/rent/', 'rent', 'Снять жилье'),
+    ('/contact/', 'contact', 'Как добраться'),
+] %}
+
+<ul class="nav nav-pills pull-right">
+    {% for href, id, caption in navigation_bar %}
+    <li{% if id == active_page %} class="active"{% endif %}>
+        <a href="{{ href|e }}">{{ caption|e }}</a>
+    </li>
+    {% endfor %}
+</ul>

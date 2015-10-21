@@ -1,22 +1,28 @@
 from flask import Flask, render_template
 app = Flask(__name__)
 
+from forms import AskQuestionForm
 
 @app.route("/", methods=['GET'])
 def main():
     return render_template('main.html')
 
-@app.route("/contact", methods=['GET', 'POST'])
+@app.route("/contact/", methods=['GET', 'POST'])
 def contact():
-    return "Hello Flask!"
+    form = AskQuestionForm()
+    return render_template('contact.html', form=form)
 
-@app.route("/rent", methods=['GET'])
+@app.route("/sent/", methods=['GET', 'POST'])
+def question_was_sent():
+    return render_template('rent.html')
+
+@app.route("/rent/", methods=['GET'])
 def rent():
-    return "Hello Flask!"
+    return render_template('rent.html')
 
-@app.route("/places", methods=['GET'])
+@app.route("/places/", methods=['GET'])
 def places():
-    return "Hello Flask!"
+    return render_template('places.html')
 
 
 if __name__ == "__main__":
