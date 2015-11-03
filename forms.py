@@ -1,6 +1,6 @@
-from wtforms import Form, TextField, validators
+from wtforms import Form, TextField, TextAreaField, validators
 
 class AskQuestionForm(Form):
     name = TextField('Name', [validators.Required()])
-    email = TextField('Email Address', [validators.Required()])
-    body = TextField('Message body', [validators.Required()])
+    email = TextField('Email', [validators.Required()])
+    body = TextAreaField('Message', [validators.Required()])

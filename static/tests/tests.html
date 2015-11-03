@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>JavaScript tests</title>
+    <link rel="stylesheet" href="//code.jquery.com/qunit/qunit-1.20.0.css">
+</head>
+<body>
+<div id="qunit"></div>
+<div id="qunit-fixture"></div>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js" ></script>
+<script src="{{ url_for('static', filename='js/google_map.js') }}"></script>
+<script src="//code.jquery.com/qunit/qunit-1.20.0.js"></script>
+
+<div id="map"></div>
+
+<script>
+/* Test that google maps appears on the page */
+test("map_is_visible", function() {
+    equal($('#map').is(':visible'), true);
+});
+</script>
+</body>
+</html>

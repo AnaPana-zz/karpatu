@@ -73,3 +73,17 @@ body {
         border-bottom: 0;
     }
 }
+
+.form-input {
+    margin: 0px 0px 5px 0px;
+}
+
+/* do anchor link for the contact form like normal text */
+.no-link:hover {
+    color: black;
+    text-decoration: none;
+}
+
+.no-link {
+    color: black;
+}

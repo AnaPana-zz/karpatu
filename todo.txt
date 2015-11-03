@@ -1,0 +1,3 @@
+1. Contact form which sends messages to both.
+2. Ukrainian and English languages.
+3. Add pictures.
