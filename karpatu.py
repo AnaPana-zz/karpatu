@@ -1,17 +1,33 @@
 import requests
 
-
+from collections import defaultdict
 from flask import Flask, render_template, request, flash, redirect, url_for, current_app
-app = Flask(__name__)
+from flask_mail import Mail, Message
 
 from forms import AskQuestionForm
+
+import os
+
+mail = Mail()
+app = Flask(__name__)
+mail.init_app(app)
+
 
 app.config['WTF_CSRF_SECRET_KEY'] = 'wtf_secret'
 app.config['SECRET_KEY'] = 'wtf_secret'
 
 
-RECAPTCHA_SECRET_KEY = '6LcWeA8TAAAAALF6fh7vfwKZsviaIaI8_bdr0Egp'
+app.config['MAIL_SERVER'] = 'smtp.mail.ru'
+app.config['MAIL_PORT'] = '2525'
+app.config['MAIL_USE_TLS'] = True
+app.config['MAIL_USE_SSL'] = False
+app.config['MAIL_DEBUG'] = True
+app.config['MAIL_USERNAME '] = os.environ.get('MAIL_USERNAME')
+app.config['MAIL_PASSWORD '] = os.environ.get('MAIL_PASSWORD')
+app.config['DEFAULT_MAIL_SENDER '] = 'admin@it-recipes.com'
 
+
+RECAPTCHA_SECRET_KEY = '6LcWeA8TAAAAALF6fh7vfwKZsviaIaI8_bdr0Egp'
 RECAPTCHA_VERIFY_URL = 'https://www.google.com/recaptcha/api/siteverify'
 
 
@@ -22,15 +38,36 @@ def main():
 
 @app.route("/contact/", methods=['GET', 'POST'])
 def contact():
+    messages = defaultdict(list)
     form = AskQuestionForm()
+
     if request.method == 'POST':
         form = AskQuestionForm(request.form)
+
         if form.validate() and verify_recaptcha(request):
-            flash("Your message was sent successfully. We'll contact you soon.")
-            return redirect(url_for('contact'))
-        else:
-            flash_errors(form)
-    return render_template('contact.html', form=form)
+            msg = Message("Hello",
+                          sender="admin@it-recipes.com",
+                          recipients=["ana7pana@gmail.com"])
+            mail.send(msg)
+            return redirect(url_for('question_sent'))
+
+        if not form.validate():
+            for field, errors in form.errors.items():
+                messages['errors'].append("{}: {}".format(','.join([e for e in errors]), field))
+
+        if not verify_recaptcha(request):
+            messages['errors'].append("Подтвердите что Вы не робот ;)")
+
+
+    return render_template('contact.html', form=form, messages=messages)
+
+@app.route("/contact/sent/", methods=['GET'])
+def question_sent():
+    return render_template('question_sent.html')
+
+@app.route("/route/", methods=['GET'])
+def route():
+    return render_template('route.html')
 
 
 @app.route("/sent/", methods=['GET', 'POST'])
@@ -63,13 +100,6 @@ def verify_recaptcha(request):
         return True
 
     return False
-
-
-def flash_errors(form):
-    for field, errors in form.errors.items():
-        for error in errors:
-            flash(u"{error}: {field}".format(error=error, field=getattr(form, field).label.text))
-
 
 
 if __name__ == "__main__":

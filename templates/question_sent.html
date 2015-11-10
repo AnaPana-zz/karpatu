@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+{% set active_page = "contact" %}
+
+{% block content %}
+    <div class="alert alert-success" role="alert">
+        Ваше сообщение было успешно отправлено. Мы свяжемся с Вами в ближайшее время.<br/>
+        <a href="{{ url_for('main') }}">Перейти на главную ></a>
+    </div>
+
+
+
+{% endblock %}

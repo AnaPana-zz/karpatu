@@ -2,63 +2,61 @@
 {% set active_page = "contact" %}
 
 {% block extra_js %}
-
-    <style>
-        #map {
-            width: 100%;
-            height: 400px;
-        }
-    </style>
-    <script src="https://maps.googleapis.com/maps/api/js?language=ru"></script>
-
-    <script src="{{ url_for('static', filename='js/google_map.js') }}"></script>
     <script src="https://www.google.com/recaptcha/api.js?hl=ru" async defer></script>
-
 {% endblock %}
 
 {% block content %}
-<div id="html_element"></div>
 
-    <div id="map"></div>
-    <a href="https://goo.gl/maps/QtJGANxPJho" target="_blank">Показать карту в отдельной вкладке</a>
-    <h4>Из Киева общественым транспортом:</h4>
-    <ul>
-        <li>поезд <i>Киев - Ивано-Франковск</i> (билеты можно посмотреть и купить здесь: <a href="http://booking.uz.gov.ua/">http://booking.uz.gov.ua/</a>)</li>
-        <li>от ж/д вокзала нужно перейти на дорогу на другую сторону и сесть на маршрутку до АС-3 (приблизительные номера автобусов тут: <a href="http://marshrutka.com.ua/searchadv/?city_id=62&from=%D0%B2%D0%BE%D0%BA%D0%B7%D0%B0%D0%BB&to=%D0%90%D0%A1-3&mode_id=0">http://marshrutka.com.ua/searchadv/?city_id=62&from=%D0%B2%D0%BE%D0%BA%D0%B7%D0%B0%D0%BB&to=%D0%90%D0%A1-3&mode_id=0</a>)
-        <li>автобус <i>Автостанция АС-3 - Старая Гута</i>: <a href="http://zabytki.in.ua/service/timetable/bus_station/494?lang=ru">http://zabytki.in.ua/service/timetable/bus_station/494?lang=ru</a></li>
-    </ul>
-    <h4>Из Киева машиной через Ивано-Франковск:</h4>
-    <p>Тут нужно быть очень осторожным и правильно выбрать маршрут. Украинские дороги как всегда не радуют.</p>
-    <p>Советую взять такой маршрут: (<a href="https://goo.gl/maps/fhcngNDNwqH2" target="_blank">открыть в google maps</a>)</p>
-    <ul>
-        <li>трасса Киев-Львов, доехать до окружной Львова (<b>трасса Е40</b>)</li>
-        <li>свернуть на Бибрку, дальше ехать через Рогатин, Бурштын, Галыч через Ивано-Франковск до Богородчан (<b>трасса Н09</b>)</li>
-        <li>после Богородчан взять направление на Дзвыняч, Солотвин, Пороги до с. Старая Гута (<b>трасса Р38</b>)</li>
-    </ul>
-    <hr/>
+{% if messages.errors %}
+    <div class="alert alert-danger" role="alert">
+        {% for message in messages.errors %}
+        {{ message }}<br/>
+        {% endfor %}
+    </div>
+{% endif %}
 
-    {% with messages = get_flashed_messages() %}
-    {% if messages %}
-        <div class="alert alert-success" role="alert">
-            <ul class=flashes>
-                {% for message in messages %}
-                <li>{{ message }}</li>
-                {% endfor %}
-            </ul>
-        </div>
-    {% endif %}
-    {% endwith %}
 
+<form role="form" data-toggle="validator" method="POST" action="">
     <a name="question" class="no-link"><h3>Задать вопрос:</h3></a>
-    <form method="POST" action="">
-        {{ form.csrf_token }}
-        <label for="name">Имя</label><br/> {{ form.name(size=30, class='form-input') }}<br/>
-        {{ form.email.label }}<br/> {{ form.email(size=30, class='form-input') }}<br/>
-        <label for="body">Текст сообщения</label><br/>
-        {{ form.body(cols="42", rows="10", class='form-input') }}
-        <div class="g-recaptcha" data-sitekey="6LcWeA8TAAAAAMFXTJ5-2aYmeG07VoM59PbmlJB_"></div>
-        <br/>
+    {{ form.csrf_token }}
+    <div class="form-group clearfix">
+        <div class="row">
+            <label class="col-sm-2 control-label" for="name">Имя</label>
+        </div>
+        <div class="row">
+            <div class="col-sm-5">
+                {{ form.name(class='form-control', required='required', placeholder='Name') }}
+            </div>
+        </div>
+    </div>
+    <div class="form-group clearfix">
+        <div class="row">
+            <label class="col-sm-2 control-label" for="email">{{ form.email.label }}</label>
+        </div>
+        <div class="row">
+            <div class="col-sm-5">
+                {{ form.email(class='input-small form-control', required='required', placeholder='Email') }}
+            </div>
+        </div>
+    </div>
+    <div class="form-group clearfix">
+        <div class="row">
+            <label class="col-sm-4 control-label" for="body">Текст сообщения</label>
+        </div>
+        <div class="row">
+            <div class="col-sm-5">
+                {{ form.body(cols="42", rows="10", class='form-control', required='required') }}
+            </div>
+        </div>
+    </div>
+    <div class="form-group clearfix">
+        <div class="row">
+            <div class="g-recaptcha col-sm-3" data-sitekey="6LcWeA8TAAAAAMFXTJ5-2aYmeG07VoM59PbmlJB_"></div>
+        </div>
+    </div>
+    <div class="form-group clearfix">
         <button class="btn btn-success" type="submit">Отправить</button>
-    </form>
+    </div>
+</form>
 
 {% endblock %}
