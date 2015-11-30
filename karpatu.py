@@ -1,22 +1,53 @@
 import requests
 
 from collections import defaultdict
-from flask import Flask, render_template, request, flash, redirect, url_for, current_app
+from flask import Flask, render_template, request, flash, redirect, url_for
 from flask_mail import Mail, Message
 
 from forms import AskQuestionForm
 
 import os
 
-mail = Mail()
+
+# constants
+ADMIN_EMAIL = 'admin@it-recipes.com'
+RECAPTCHA_SECRET_KEY = '6LcWeA8TAAAAALF6fh7vfwKZsviaIaI8_bdr0Egp'
+RECAPTCHA_VERIFY_URL = 'https://www.google.com/recaptcha/api/siteverify'
+
+USER_MESSAGE_TEMPLATE = """
+Приветствеум {username}!
+
+Ваш вопрос был успешно отправлен администраторам сайта.
+
+Мы свяжемся с Вами в ближайшее время!
+
+Спасибо за Ваш интерес к нашему ресурсу.
+
+{body}
+"""
+
+ADMIN_MESSAGE_TEMPLATE = """
+Hi admin,
+
+you've received a question from {username} <{email}>:
+
+{body}"""
+
+# flask app
 app = Flask(__name__)
+
+
+# mail initialization
+mail = Mail()
 mail.init_app(app)
 
 
+# flask forms parameters
 app.config['WTF_CSRF_SECRET_KEY'] = 'wtf_secret'
 app.config['SECRET_KEY'] = 'wtf_secret'
 
 
+# flask mail parameters
 app.config['MAIL_SERVER'] = 'smtp.mail.ru'
 app.config['MAIL_PORT'] = '2525'
 app.config['MAIL_USE_TLS'] = True
@@ -24,11 +55,7 @@ app.config['MAIL_USE_SSL'] = False
 app.config['MAIL_DEBUG'] = True
 app.config['MAIL_USERNAME '] = os.environ.get('MAIL_USERNAME')
 app.config['MAIL_PASSWORD '] = os.environ.get('MAIL_PASSWORD')
-app.config['DEFAULT_MAIL_SENDER '] = 'admin@it-recipes.com'
-
-
-RECAPTCHA_SECRET_KEY = '6LcWeA8TAAAAALF6fh7vfwKZsviaIaI8_bdr0Egp'
-RECAPTCHA_VERIFY_URL = 'https://www.google.com/recaptcha/api/siteverify'
+app.config['MAIL_DEFAULT_SENDER '] = ADMIN_EMAIL
 
 
 @app.route("/", methods=['GET'])
@@ -42,13 +69,29 @@ def contact():
     form = AskQuestionForm()
 
     if request.method == 'POST':
-        form = AskQuestionForm(request.form)
+        form_data = request.form
+        form = AskQuestionForm(form_data)
 
         if form.validate() and verify_recaptcha(request):
-            msg = Message("Hello",
-                          sender="admin@it-recipes.com",
-                          recipients=["ana7pana@gmail.com"])
-            mail.send(msg)
+            with mail.connect() as conn:
+                user_msg = Message(
+                    subject='Stara Guta: your message has been sent.',
+                    body=USER_MESSAGE_TEMPLATE.format(username=form_data['name'], body=form_data['body']),
+                    sender=ADMIN_EMAIL, # MAIL_DEFAULT_SENDER doesn't work for some reason
+                    recipients=[form_data['email']],
+                )
+                admin_msg = Message(
+                    subject='New question from Stara Guta website',
+                    body=ADMIN_MESSAGE_TEMPLATE.format(
+                        username=form_data['name'],
+                        email=form_data['email'],
+                        body=form_data['body']
+                        ),
+                    sender=ADMIN_EMAIL, # MAIL_DEFAULT_SENDER doesn't work for some reason
+                    recipients=["ana7pana@gmail.com"],
+                    )
+                conn.send(admin_msg)
+                conn.send(user_msg)
             return redirect(url_for('question_sent'))
 
         if not form.validate():

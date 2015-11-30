@@ -30,7 +30,7 @@ class MainMenuTestCase(MainTestCase):
 
     def test_rent_main_menu(self):
         response = self.app.get('/rent/')
-        assert """<li class="active">        <a href="/rent/">Снять жилье</a>    </li>""" in \
+        assert """<li class="active">        <a href="/rent/">Снять дом</a>    </li>""" in \
                response.data.decode('utf-8').replace("\n", "")
 
 
